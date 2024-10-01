@@ -1,0 +1,17 @@
+
+keycloak:
+  realm: aditi
+  domain: localhost:9090
+  adminClientId: aditi-bank
+  adminClientSecret: CzaYhuk31GPdOkmyPtWxj4JSXP64K1l5
+  client: authenticationClientId
+  urls:
+    auth: http://${keycloak.domain}
+spring:
+  cloud:
+    openfeign:
+      enabled: true
+    discovery:
+      client:
+        simple:
+          enabled: true
