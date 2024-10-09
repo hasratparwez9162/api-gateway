@@ -71,5 +71,9 @@ public class Controller {
     public Map<String, Object> login (@RequestBody LoginRequest loginRequest){
        return keycloakUserService.login(loginRequest.getUsername() , loginRequest.getPassword());
     }
+    @PutMapping("/{username}/forget-password")
+    public void forgetPassword(@PathVariable String username){
+        keycloakUserService.forgotPassword(username);
+    }
 
 }

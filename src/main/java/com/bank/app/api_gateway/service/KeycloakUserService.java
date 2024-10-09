@@ -1,5 +1,7 @@
 package com.bank.app.api_gateway.service;
 
+import com.bank.app.api_gateway.exception.UnVerifiedEmailException;
+import com.bank.app.api_gateway.exception.UserNotFoundException;
 import com.bank.core.entity.UserRegistrationRequest;
 import jakarta.ws.rs.core.Response;
 import org.keycloak.admin.client.Keycloak;
@@ -19,6 +21,8 @@ import java.util.*;
 @Service
 public class KeycloakUserService {
 
+
+    private static final String UPDATE_PASSWORD = "UPDATE_PASSWORD";
     @Value("${keycloak.realm}")
     private String realm;
     private Keycloak keycloak;
@@ -38,7 +42,8 @@ public class KeycloakUserService {
         user.setEmail(userRegistrationRecord.getEmail());
         user.setFirstName(userRegistrationRecord.getFirstName());
         user.setLastName(userRegistrationRecord.getLastName());
-        user.setEmailVerified(false);
+        user.setEmailVerified(true);
+
 
         CredentialRepresentation credentialRepresentation=new CredentialRepresentation();
         credentialRepresentation.setValue(userRegistrationRecord.getPassword());
@@ -103,13 +108,36 @@ public class KeycloakUserService {
         );
 
         if (response.getStatusCode() == HttpStatus.OK) {
-            // Return the response body containing the token information
             return response.getBody();
         } else {
             throw new RuntimeException("Please Enter Your Correct Details");
         }
     }
+    public void forgotPassword(String username) {
+        UsersResource usersResource = getUsersResource();
+        List<UserRepresentation> representationList = usersResource.searchByUsername(username, true);
+
+        UserRepresentation userRepresentation = representationList.stream().findFirst().orElse(null);
+
+
+        if (userRepresentation != null ) {
+            if(userRepresentation.isEmailVerified()) {
+                UserResource userResource = usersResource.get(userRepresentation.getId());
+                List<String> actions = new ArrayList<>();
+                actions.add(UPDATE_PASSWORD);
+                try {
+                    userResource.executeActionsEmail(actions);
+                } catch (Exception e) {
+                    throw new RuntimeException("Error from downstream server: " + e.getMessage(), e);
+                }
+                return;
+            }
+            throw new UnVerifiedEmailException("Email Id Not Verify");
+        }
+        throw new UserNotFoundException("Username Not Found");
     }
+
+}
 
 
 
