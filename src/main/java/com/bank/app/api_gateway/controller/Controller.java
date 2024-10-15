@@ -68,12 +68,12 @@ public class Controller {
         return ResponseEntity.status(HttpStatus.CREATED).body("User created Successfully");
     }
     @PostMapping("/login")
-    public Map<String, Object> login (@RequestBody LoginRequest loginRequest){
+    public Map<String, Object> login (@RequestBody LoginRequest loginRequest) throws Exception {
        return keycloakUserService.login(loginRequest.getUsername() , loginRequest.getPassword());
     }
-    @PutMapping("/{username}/forget-password")
-    public void forgetPassword(@PathVariable String username){
-        keycloakUserService.forgotPassword(username);
+    @PutMapping("/{input}/forget-password")
+    public void forgetPassword(@PathVariable String input){
+        keycloakUserService.forgotPassword(input);
     }
 
 }

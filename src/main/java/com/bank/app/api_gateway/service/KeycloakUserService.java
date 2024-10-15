@@ -1,5 +1,6 @@
 package com.bank.app.api_gateway.service;
 
+import com.bank.app.api_gateway.Util.PasswordUtil;
 import com.bank.app.api_gateway.exception.UnVerifiedEmailException;
 import com.bank.app.api_gateway.exception.UserNotFoundException;
 import com.bank.core.entity.UserRegistrationRequest;
@@ -77,7 +78,10 @@ public class KeycloakUserService {
         RealmResource realm1 = keycloak.realm(realm);
         return realm1.users();
     }
-    public Map<String, Object> login(String username, String password) {
+    public Map<String, Object> login(String username, String encryptedPassword) throws Exception {
+        System.out.println(encryptedPassword);
+        String password = PasswordUtil.decrypt(encryptedPassword);
+        System.out.println(password);
         // Set the headers
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -113,9 +117,14 @@ public class KeycloakUserService {
             throw new RuntimeException("Please Enter Your Correct Details");
         }
     }
-    public void forgotPassword(String username) {
+    public void forgotPassword(String input) {
         UsersResource usersResource = getUsersResource();
-        List<UserRepresentation> representationList = usersResource.searchByUsername(username, true);
+        List<UserRepresentation> representationList;
+        if (isValidEmail(input)) {
+            representationList = usersResource.searchByEmail(input, true);
+        } else {
+            representationList = usersResource.searchByUsername(input, true);
+        }
 
         UserRepresentation userRepresentation = representationList.stream().findFirst().orElse(null);
 
@@ -135,6 +144,10 @@ public class KeycloakUserService {
             throw new UnVerifiedEmailException("Email Id Not Verify");
         }
         throw new UserNotFoundException("Username Not Found");
+    }
+    private boolean isValidEmail(String input) {
+        String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
+        return input.matches(emailRegex);
     }
 
 }
