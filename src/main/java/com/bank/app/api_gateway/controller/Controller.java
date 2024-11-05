@@ -17,18 +17,12 @@ import java.util.Map;
 @RequestMapping("/apigateway")
 
 public class Controller {
-
-
     private RestTemplate template;
     private final KeycloakUserService keycloakUserService;
     public Controller (RestTemplate template, KeycloakUserService keycloakUserService){
         this.template=template;
         this.keycloakUserService = keycloakUserService;
     }
-
-
-
-
 
     @PostMapping("/register")
     public ResponseEntity<String> createUser(@RequestBody UserRegistrationRequest request) {
@@ -41,7 +35,6 @@ public class Controller {
 
          //2. Check if the user has an account in AccountService
         List accounts = template.getForObject("http://localhost:8082/account/user-account/"+user.getId(), List.class);
-//        System.out.println(accounts instanceof List);
         if (accounts == null || accounts.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No account found for the user.");
         }
@@ -50,7 +43,6 @@ public class Controller {
         boolean accountFound = false;
         LinkedHashMap account;
         for (Object ob : accounts) {
-//            System.out.println(ob.getClass());
             account = (LinkedHashMap) ob;
             if (account.get("accountNumber").equals(request.getAccountNumber())) {
                 accountFound = true;

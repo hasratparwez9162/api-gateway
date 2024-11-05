@@ -21,7 +21,7 @@ public class SecurityConfig {
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity serverHttpSecurity) {
         serverHttpSecurity.csrf(ServerHttpSecurity.CsrfSpec::disable)
-                .authorizeExchange(exchange -> exchange.pathMatchers("/eureka/**", "/apigateway/**", "/users/open-account")
+                .authorizeExchange(exchange -> exchange.pathMatchers("/eureka/**", "/apigateway/**", "/users/open-account","/users/application/**")
                         .permitAll()
                         .anyExchange().authenticated()
                 )
